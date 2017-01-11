@@ -1,6 +1,7 @@
 const http = require('http');
 const app = http.createServer(handler);
 const PORT = process.env.PORT || 3000;
+const template = require('./template.js');
 
 function handler(req, res) {
   if (!isValid(req)) {
@@ -8,8 +9,8 @@ function handler(req, res) {
     res.end('URL did not match any routes');
   }
   res.writeHead(200);
-  get('http://localhost:8080').then(response => {
-    res.end(response);
+  get('http://localhost:8080/status').then(response => {
+    res.end(template({ content: response }));
   }, err => handleError)
 }
 

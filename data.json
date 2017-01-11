@@ -1,6 +1,1 @@
-{
-  "uptime": 0,
-  "firstHit": null,
-  "statusHits": 0,
-  "endpointHits": {}
-}
+{"firsthit": null, "numendpointhits": {}, "numstatushits": 18, "starttime": 0, "uptime": 0}
