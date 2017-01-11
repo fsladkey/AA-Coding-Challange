@@ -15,7 +15,7 @@ function handler(req, res) {
 }
 
 function isValid(req) {
-  return req.url.match(/\/status\/?/);
+  return req.url === '/';
 }
 
 function get(url) {
