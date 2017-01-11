@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 function handler(req, res) {
   if (!isValid(req)) {
     res.writeHead(404);
-    res.end('Resource not found');
+    res.end('URL did not match any routes');
   }
   res.writeHead(200);
   get('http://localhost:8080').then(response => {

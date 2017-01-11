@@ -1,3 +1,6 @@
 {
-  "uptime": 0
+  "uptime": 0,
+  "firstHit": null,
+  "statusHits": 0,
+  "endpointHits": {}
 }
