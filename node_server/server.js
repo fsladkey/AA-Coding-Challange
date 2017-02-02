@@ -10,7 +10,7 @@ function handler(req, res) {
   }
   res.writeHead(200);
   get('http://localhost:8080/status').then(response => {
-    res.end(template(JSON.parse(response)));
+    template(JSON.parse(response), result => res.end(result))
   }, err => handleError)
 }
 

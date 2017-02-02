@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js">
+    </script>
+    <style media="screen">
+      html, body {
+        font-family: 'Roboto', sans-serif;
+        height: 100%;
+        text-align: center;
+      }
+
+      .container {
+        padding: 10px 300px;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <script id="context" type="appliaction/json">
+      ${ JSON.stringify(context) }
+    </script>
+
+    <main>
+      <h1>Server Status</h1>
+      <section class="stats">
+        <ul>
+          <li>Uptime: <span id="uptime"></span></li>
+          <li>First hit: <span id="first-hit"></span></li>
+          <li>Status Endpoint Hits: ${context.numstatushits}</li>
+        </ul>
+      </section>
+      <div class="container">
+        <canvas id="chart"></canvas>
+      </div>
+    </main>
+
+
+    <script type="text/javascript">
+      var context = JSON.parse(document.getElementById('context').textContent)
+      var data = {
+        labels: ['status'].concat(Object.keys(context.numendpointhits)),
+        datasets: [
+          {
+            label: "Server Status",
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1,
+            data: [context.numstatushits].concat(Object.keys(context.numendpointhits).map(path =>
+              context.numendpointhits[path]
+            )),
+          }
+        ]
+      };
+      var myBarChart = new Chart(document.getElementById('chart'), {
+        type: 'bar',
+        data: data
+      });
+
+      function getUptime(startTime) {
+        var now = new Date().getTime()
+        var start = new Date(startTime * 1000)
+        return moment.utc(now - start).format("HH:mm:ss")
+      }
+
+      function displayTime() {
+        var uptime = document.getElementById('uptime')
+        uptime.textContent = getUptime(context.starttime)
+        var firstHit = document.getElementById('first-hit')
+        firstHit.textContent = moment(context.firsthit * 1000).format("dddd, MMMM Do YYYY, h:mm:ss a")
+        setTimeout(displayTime, 1000)
+      }
+      displayTime()
+    </script>
+  </body>
+</html>
