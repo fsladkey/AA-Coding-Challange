@@ -4,26 +4,37 @@ import json
 from store import Store
 from BaseHTTPServer import BaseHTTPRequestHandler
 
+FILE_NAME = 'data.json'
+
 
 class AppHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
+        self.store = Store(FILE_NAME)
         self.update_stats()
+        self.store.save()
+        self.render_json(self.store.data)
+
+    def at_status_route(self):
+        return re.match('\/status\/?', self.path)
 
     def update_stats(self):
-        store = Store('data.json')
-        store['uptime'] = time.time() - store["starttime"]
-        if not store['firsthit']:
-            store['firsthit'] = time.time()
-        if re.match('\/status\/?', self.path):
-            store['numstatushits'] += 1
+        self.store['uptime'] = time.time() - self.store["starttime"]
+        self.update_first_hit_stat()
+        if self.at_status_route():
+            self.store['numstatushits'] += 1
         else:
-            if self.path in store['numendpointhits']:
-                store['numendpointhits'][self.path] += 1
-            else:
-                store['numendpointhits'][self.path] = 1
-        store.save()
-        self.render_json(store.data)
+            self.update_path_stats()
+
+    def update_first_hit_stat(self):
+        if not self.store['firsthit']:
+            self.store['firsthit'] = time.time()
+
+    def update_path_stats(self):
+        if self.path in self.store['numendpointhits']:
+            self.store['numendpointhits'][self.path] += 1
+        else:
+            self.store['numendpointhits'][self.path] = 1
 
     def render_json(self, content, status=200):
         self.send_response(status)

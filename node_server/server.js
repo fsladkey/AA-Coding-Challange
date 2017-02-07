@@ -1,33 +1,24 @@
 const http = require('http');
-const app = http.createServer(handler);
 const PORT = process.env.PORT || 3000;
-const template = require('./template.js');
+const template = require('./template');
+const get = require('./util').get;
+
+const SERVER_URL = "http://localhost:8080/status"
+const isValid = (req) => req.url === '/';
 
 function handler(req, res) {
   if (!isValid(req)) {
     res.writeHead(404);
     res.end('URL did not match any routes');
+    return
   }
+
   res.writeHead(200);
-  get('http://localhost:8080/status').then(response => {
-    template(JSON.parse(response), result => res.end(result))
-  }, err => handleError)
+  get(SERVER_URL).then(
+    response => template(response, result => res.end(result)),
+    err => handleError
+  )
 }
 
-function isValid(req) {
-  return req.url === '/';
-}
-
-function get(url) {
-  return new Promise((resolve) => {
-    function handleResponse(response) {
-      let str = '';
-      response.on('data', (chunk) => str += chunk);
-      response.on('end', () => resolve(str));
-    }
-    http.request(url, handleResponse).end();
-  });
-}
-
-app.listen(PORT)
+http.createServer(handler).listen(PORT);
 console.log(`listening on ${PORT}`)
