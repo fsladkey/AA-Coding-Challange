@@ -1,23 +1,15 @@
 const http = require('http');
 const PORT = process.env.PORT || 3000;
-const template = require('./template');
-const get = require('./util').get;
+const handlers = require('./handlers')
 
-const SERVER_URL = "http://localhost:8080/status"
-const isValid = (req) => req.url === '/';
+routes = { "^\/$": handlers.renderStatus, "assets\/": handlers.renderAssets };
 
 function handler(req, res) {
-  if (!isValid(req)) {
-    res.writeHead(404);
-    res.end('URL did not match any routes');
-    return
+  for (pattern in routes) {
+    if (req.url.match(pattern))
+      return routes[pattern](req, res)
   }
-
-  res.writeHead(200);
-  get(SERVER_URL).then(
-    response => template(response, result => res.end(result)),
-    err => handleError
-  )
+  handlers.renderError(req, res)
 }
 
 http.createServer(handler).listen(PORT);
